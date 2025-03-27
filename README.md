@@ -14,9 +14,9 @@ The mdCATH dataset is preprocessed by:
   - **Core/Exterior Ratio**: Proportion of residues in the core.
   - **Solvent Accessibility**: Average relative accessibility.
 - **Temperature Stability Profiles**: Domains are categorized as:
-  - **Stable**: RMSF₄₅₀/RMSF₃₂₀ < 2.0
-  - **Moderately Stable**: Ratio between 2.0 and 4.0
-  - **Unstable**: Ratio > 4.0
+  - **Stable**: RMSF₄₅₀/RMSF₃₂₀ < 1.0
+  - **Moderately Stable**: Ratio between 1.0 and 2.0
+  - **Unstable**: Ratio > 2.0
 
 ---
 
