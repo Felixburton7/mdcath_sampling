@@ -132,3 +132,106 @@ if __name__ == "__main__":
     main()
     elapsed_time = time.time() - start_time
     print(f"Total execution time: {elapsed_time:.2f} seconds")
+
+graph TD
+    subgraph Inputs
+        direction LR
+        A[Molecular Dynamics Data (CSVs @ 5 Temps + Avg)]
+        B[CATH Classifications (v4.4.0)]
+        C[Raw mdCATH Domains (Implicit)]
+    end
+
+    subgraph Preprocessing & Feature Engineering
+        direction TB
+        D[Extract CATH Hierarchy (C, A, T, H)]
+        E[Aggregate Domain-Level Features]
+        E --> E1(Sec. Structure %)
+        E --> E2(Avg. RMSF)
+        E --> E3(Core/Exterior Ratio)
+        E --> E4(Avg. Rel. Solvent Acc.)
+        F[Calculate Temperature Stability Profile (Stable/Moderate/Unstable)]
+    end
+
+    subgraph Core Sampling Protocol
+        direction TB
+        G[Hierarchical Stratification by CATH]
+        H[Targeted Sampling within Topology Groups]
+        H --> H1{>= 10 Domains?}
+        H1 -- Yes --> H2[K-means Clustering on Features]
+        H2 --> H3[Select 1 Representative/Cluster]
+        H1 -- No --> H4[Proportional Sampling (Uniqueness)]
+        I[Homology Control]
+        I --> I1[Build Domain Network (PDB Origin / Homology)]
+        I1 --> I2[Sample Connected Components]
+    end
+
+    subgraph Validation & Refinement Loop
+        direction TB
+        J[Statistical Validation]
+        J --> J1(Kolmogorov-Smirnov Tests - Continuous)
+        J --> J2(Chi-squared Tests - Categorical)
+        K[Calculate Representation Index (RI)]
+        K --> K1(Composite: Dist. Sim., Hier. Cov., Stab. Cov.)
+        L{RI >= 0.9?}
+        L -- No --> CoreSampling[Refine Sampling - Back to Core Protocol]
+        L -- Yes --> Outputs[Proceed to Final Output]
+    end
+
+    subgraph Final Outputs
+        direction LR
+        M[Holdout Set (10%, 540 Domains)]
+        N[Training Set (90%, 4858 Domains)]
+        O[Output Files (`holdout_domains.txt`, `training_domains.txt`)]
+    end
+
+    subgraph Implementation Details
+        direction TB
+        P[Python Code Modules]
+        P --> P1(`load_temperature_data`)
+        P --> P2(`aggregate_domain_features`)
+        P --> P3(`hierarchical_stratified_sampling`)
+        P --> P4(`network_aware_sampling`)
+        P --> P5(`statistical_validation`)
+        Q[Main Pipeline Script (Orchestration)]
+    end
+
+    %% Central Process Hub
+    Hub((mdCATH Stratified Sampling))
+
+    %% Connections
+    A --> Hub
+    B --> Hub
+    C --> Hub
+
+    Hub --> D
+    Hub --> E
+    D --> G
+    E --> H
+    E --> F
+    F --> K1  % Stability profile feeds into RI calculation
+
+    Hub --> G
+    G --> H
+    H --> I2 % Output of targeted sampling feeds into component sampling pool
+    Hub --> I  % Homology control is a core part
+
+    I2 --> J % Sampled set goes to validation
+    K --> L
+    J --> K
+
+    L -- Yes --> M
+    L -- Yes --> N
+    M --> O
+    N --> O
+
+    %% Implementation supports the process
+    Implementation_Details --> Hub
+
+    %% Linking Preprocessing Outputs to Usage
+    D --> G  % CATH hierarchy used for stratification
+    E --> H  % Features used for clustering/proportional sampling
+    E --> J  % Features used for statistical validation distributions
+    D --> J  % CATH classifications used for categorical validation
+
+    %% Link Core Sampling output to Validation
+    I2 --> J % The result of component sampling is validated
