@@ -216,6 +216,29 @@ flowchart TD
 
 ---
 
+## Simplified Overview
+
+A simplified representation of the overall workflow:
+
+```mermaid
+flowchart LR
+    A["Protein Domains"] --> B["Feature Extraction"]
+    B --> C["Stratified Sampling"]
+    C --> D["Quality Control"]
+    D --> E1["Training Set 90%"]
+    D --> E2["Holdout Set 10%"]
+    
+    classDef input fill:#70AD47,stroke:#507E32,color:white,stroke-width:2px;
+    classDef process fill:#4472C4,stroke:#2F528F,color:white,stroke-width:2px;
+    classDef output fill:#ED7D31,stroke:#D8591B,color:white,stroke-width:2px;
+    
+    class A input;
+    class B,C,D process;
+    class E1,E2 output;
+```
+
+---
+
 ## License
 
 [Include appropriate license information here.]
