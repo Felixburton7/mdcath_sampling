@@ -133,6 +133,60 @@ if __name__ == "__main__":
     elapsed_time = time.time() - start_time
     print(f"Total execution time: {elapsed_time:.2f} seconds")
 
+
+
+
+
+
+MEDUSA
+graph TD
+    %% Input Data
+    input[MD Simulations at 5 Temperatures + CATH v4.4.0]
+    
+    %% Feature Extraction
+    input --> features[Domain-Level Feature Extraction]
+    features --> feat1[Secondary Structure %]
+    features --> feat2[Backbone Flexibility (RMSF)]
+    features --> feat3[Core/Exterior Ratio]
+    features --> feat4[Solvent Accessibility]
+    features --> stability[Temperature Stability Profiles]
+    
+    %% Core Sampling Process
+    features --> strat[Hierarchical Stratification by CATH]
+    strat --> topology{Topology Size}
+    
+    %% Large Topology Groups
+    topology -->|≥10 domains| kmeans[K-means Clustering]
+    kmeans --> rep[Select Representative Domains]
+    
+    %% Small Topology Groups
+    topology -->|<10 domains| prop[Proportional Sampling by Uniqueness]
+    
+    %% Homology Control
+    rep --> homology[Homology Control]
+    prop --> homology
+    homology --> network[Build Domain Network]
+    network --> components[Sample Connected Components]
+    
+    %% Validation Loop
+    components --> validate[Statistical Validation]
+    validate --> ri[Representation Index (RI)]
+    ri --> threshold{RI ≥ 0.9?}
+    threshold -->|No| refine[Refine Sampling]
+    refine --> strat
+    
+    %% Final Output
+    threshold -->|Yes| output[10% Holdout Set (540 domains)]
+    
+    %% Add Visual Clarity
+    classDef process fill:#D4F1F9,stroke:#05386B,stroke-width:2px
+    classDef decision fill:#FFEECC,stroke:#D9730D,stroke-width:2px
+    classDef output fill:#E3FCEF,stroke:#0A7B83,stroke-width:2px
+    
+    class input,features,feat1,feat2,feat3,feat4,stability,strat,kmeans,rep,prop,homology,network,components,validate,ri,refine process
+    class topology,threshold decision
+    class output output
+
 graph TD
     subgraph Inputs
         direction LR
