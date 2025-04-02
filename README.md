@@ -134,158 +134,64 @@ if __name__ == "__main__":
     print(f"Total execution time: {elapsed_time:.2f} seconds")
 
 
-
-
-
-
 MEDUSA
 graph TD
     %% Input Data
-    input[MD Simulations at 5 Temperatures + CATH v4.4.0]
+    A[Molecular Dynamics Data<br/>(CSVs @ 5 Temps + Avg)]
+    B[CATH Classifications<br/>(v4.4.0)]
     
-    %% Feature Extraction
-    input --> features[Domain-Level Feature Extraction]
-    features --> feat1[Secondary Structure %]
-    features --> feat2[Backbone Flexibility (RMSF)]
-    features --> feat3[Core/Exterior Ratio]
-    features --> feat4[Solvent Accessibility]
-    features --> stability[Temperature Stability Profiles]
+    %% Preprocessing & Feature Engineering
+    A & B --> D[Extract CATH Hierarchy<br/>(Class, Architecture, Topology, Homology)]
+    A --> E[Aggregate Domain-Level Features]
+    E --> E1[Secondary Structure %<br/>(Helix, Sheet, Coil)]
+    E --> E2[Backbone Flexibility<br/>(Average RMSF)]
+    E --> E3[Core/Exterior Ratio]
+    E --> E4[Solvent Accessibility]
+    E --> F[Temperature Stability Profiles<br/>Stable: RMSF₄₅₀/RMSF₃₂₀ < 1.0<br/>Moderate: 1.0-2.0<br/>Unstable: > 2.0]
     
     %% Core Sampling Process
-    features --> strat[Hierarchical Stratification by CATH]
-    strat --> topology{Topology Size}
+    E1 & E2 & E3 & E4 & F --> G[Hierarchical Stratification by CATH]
+    D --> G
+    G --> H[Targeted Sampling within Topology Groups]
+    H --> H1{Topology Size ≥ 10 domains?}
     
     %% Large Topology Groups
-    topology -->|≥10 domains| kmeans[K-means Clustering]
-    kmeans --> rep[Select Representative Domains]
+    H1 -->|Yes| H2[K-means Clustering<br/>on Feature Vectors]
+    H2 --> H3[Select One Representative<br/>Domain per Cluster]
     
     %% Small Topology Groups
-    topology -->|<10 domains| prop[Proportional Sampling by Uniqueness]
+    H1 -->|No| H4[Proportional Sampling<br/>Based on Feature Uniqueness]
     
     %% Homology Control
-    rep --> homology[Homology Control]
-    prop --> homology
-    homology --> network[Build Domain Network]
-    network --> components[Sample Connected Components]
+    H3 & H4 --> I[Homology Control]
+    I --> I1[Build Domain Network<br/>(PDB Origin / Homologous Superfamily)]
+    I1 --> I2[Sample Connected Components<br/>(Keep Related Domains Together)]
     
-    %% Validation Loop
-    components --> validate[Statistical Validation]
-    validate --> ri[Representation Index (RI)]
-    ri --> threshold{RI ≥ 0.9?}
-    threshold -->|No| refine[Refine Sampling]
-    refine --> strat
+    %% Validation & Refinement Loop
+    I2 --> J[Statistical Validation]
+    J --> J1[KS Tests for Continuous Distributions<br/>(Domain Size, RMSF Values)]
+    J --> J2[χ² Tests for Categorical Distributions<br/>(CATH Classes, Secondary Structure)]
+    J1 & J2 --> K[Calculate Representation Index (RI)<br/>(Geometric Mean of Distribution Similarity,<br/>Hierarchy Coverage, Stability Profile Coverage)]
+    K --> L{RI ≥ 0.9?}
+    L -->|No| M[Refine Sampling]
+    M --> G
     
     %% Final Output
-    threshold -->|Yes| output[10% Holdout Set (540 domains)]
+    L -->|Yes| N[Holdout Set<br/>(10%, 540 Domains)]
+    L -->|Yes| O[Training Set<br/>(90%, 4,858 Domains)]
+    N & O --> P[Output Domain Lists to Text Files]
     
     %% Add Visual Clarity
-    classDef process fill:#D4F1F9,stroke:#05386B,stroke-width:2px
-    classDef decision fill:#FFEECC,stroke:#D9730D,stroke-width:2px
-    classDef output fill:#E3FCEF,stroke:#0A7B83,stroke-width:2px
+    classDef input fill:#D4F1F9,stroke:#05386B,stroke-width:2px,rx:5px
+    classDef process fill:#E0F4FF,stroke:#05386B,stroke-width:2px,rx:5px
+    classDef feature fill:#CCE8FF,stroke:#05386B,stroke-width:1px,rx:5px
+    classDef decision fill:#FFEECC,stroke:#D9730D,stroke-width:2px,rx:10px
+    classDef validation fill:#F0E6FF,stroke:#5E2CA5,stroke-width:2px,rx:5px
+    classDef output fill:#E3FCEF,stroke:#0A7B83,stroke-width:2px,rx:5px
     
-    class input,features,feat1,feat2,feat3,feat4,stability,strat,kmeans,rep,prop,homology,network,components,validate,ri,refine process
-    class topology,threshold decision
-    class output output
-
-graph TD
-    subgraph Inputs
-        direction LR
-        A[Molecular Dynamics Data (CSVs @ 5 Temps + Avg)]
-        B[CATH Classifications (v4.4.0)]
-        C[Raw mdCATH Domains (Implicit)]
-    end
-
-    subgraph Preprocessing & Feature Engineering
-        direction TB
-        D[Extract CATH Hierarchy (C, A, T, H)]
-        E[Aggregate Domain-Level Features]
-        E --> E1(Sec. Structure %)
-        E --> E2(Avg. RMSF)
-        E --> E3(Core/Exterior Ratio)
-        E --> E4(Avg. Rel. Solvent Acc.)
-        F[Calculate Temperature Stability Profile (Stable/Moderate/Unstable)]
-    end
-
-    subgraph Core Sampling Protocol
-        direction TB
-        G[Hierarchical Stratification by CATH]
-        H[Targeted Sampling within Topology Groups]
-        H --> H1{>= 10 Domains?}
-        H1 -- Yes --> H2[K-means Clustering on Features]
-        H2 --> H3[Select 1 Representative/Cluster]
-        H1 -- No --> H4[Proportional Sampling (Uniqueness)]
-        I[Homology Control]
-        I --> I1[Build Domain Network (PDB Origin / Homology)]
-        I1 --> I2[Sample Connected Components]
-    end
-
-    subgraph Validation & Refinement Loop
-        direction TB
-        J[Statistical Validation]
-        J --> J1(Kolmogorov-Smirnov Tests - Continuous)
-        J --> J2(Chi-squared Tests - Categorical)
-        K[Calculate Representation Index (RI)]
-        K --> K1(Composite: Dist. Sim., Hier. Cov., Stab. Cov.)
-        L{RI >= 0.9?}
-        L -- No --> CoreSampling[Refine Sampling - Back to Core Protocol]
-        L -- Yes --> Outputs[Proceed to Final Output]
-    end
-
-    subgraph Final Outputs
-        direction LR
-        M[Holdout Set (10%, 540 Domains)]
-        N[Training Set (90%, 4858 Domains)]
-        O[Output Files (`holdout_domains.txt`, `training_domains.txt`)]
-    end
-
-    subgraph Implementation Details
-        direction TB
-        P[Python Code Modules]
-        P --> P1(`load_temperature_data`)
-        P --> P2(`aggregate_domain_features`)
-        P --> P3(`hierarchical_stratified_sampling`)
-        P --> P4(`network_aware_sampling`)
-        P --> P5(`statistical_validation`)
-        Q[Main Pipeline Script (Orchestration)]
-    end
-
-    %% Central Process Hub
-    Hub((mdCATH Stratified Sampling))
-
-    %% Connections
-    A --> Hub
-    B --> Hub
-    C --> Hub
-
-    Hub --> D
-    Hub --> E
-    D --> G
-    E --> H
-    E --> F
-    F --> K1  % Stability profile feeds into RI calculation
-
-    Hub --> G
-    G --> H
-    H --> I2 % Output of targeted sampling feeds into component sampling pool
-    Hub --> I  % Homology control is a core part
-
-    I2 --> J % Sampled set goes to validation
-    K --> L
-    J --> K
-
-    L -- Yes --> M
-    L -- Yes --> N
-    M --> O
-    N --> O
-
-    %% Implementation supports the process
-    Implementation_Details --> Hub
-
-    %% Linking Preprocessing Outputs to Usage
-    D --> G  % CATH hierarchy used for stratification
-    E --> H  % Features used for clustering/proportional sampling
-    E --> J  % Features used for statistical validation distributions
-    D --> J  % CATH classifications used for categorical validation
-
-    %% Link Core Sampling output to Validation
-    I2 --> J % The result of component sampling is validated
+    class A,B input
+    class D,E,G,H,H2,H3,H4,I,I1,I2,M process
+    class E1,E2,E3,E4,F feature
+    class H1,L decision
+    class J,J1,J2,K validation
+    class N,O,P output
