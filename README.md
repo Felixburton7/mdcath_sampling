@@ -1,7 +1,3 @@
-Below is the updated README with the mermaid diagram fixed by replacing HTML line breaks with plain text formatting. This version should now render correctly on GitHub:
-
----
-
 # mdCATH Dataset Stratified Sampling
 
 This repository implements a hierarchical stratified sampling protocol to partition the mdCATH dataset into training (90%) and holdout (10%) sets. The goal is to preserve the diversity of structural and dynamic properties across protein domains while ensuring that homologous domains remain grouped together.
