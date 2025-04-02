@@ -1,4 +1,4 @@
-Below is the updated README with the mermaid diagram fixed by replacing HTML line breaks with plain text formatting. This should render correctly on GitHub:
+Below is the updated README with the mermaid diagram fixed by replacing HTML line breaks with plain text formatting. This version should now render correctly on GitHub:
 
 ---
 
