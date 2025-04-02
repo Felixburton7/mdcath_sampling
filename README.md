@@ -1,4 +1,4 @@
-Below is the full corrected README with improvements to clarity, formatting, and consistency:
+Below is the updated README with the mermaid diagram fixed by replacing HTML line breaks with plain text formatting. This should render correctly on GitHub:
 
 ---
 
@@ -162,22 +162,22 @@ if __name__ == "__main__":
 
 ## Visual Workflow Diagram
 
-Below is a mermaid diagram outlining the mdCATH stratified sampling process:
+Below is the corrected mermaid diagram for the mdCATH stratified sampling process:
 
 ```mermaid
 graph TD
     %% Input Data
-    A[Molecular Dynamics Data<br/>(CSVs @ 5 Temps + Avg)]
-    B[CATH Classifications<br/>(v4.4.0)]
+    A[Molecular Dynamics Data (CSVs @ 5 Temps + Avg)]
+    B[CATH Classifications (v4.4.0)]
     
     %% Preprocessing & Feature Engineering
-    A & B --> D[Extract CATH Hierarchy<br/>(Class, Architecture, Topology, Homology)]
+    A & B --> D[Extract CATH Hierarchy (Class, Architecture, Topology, Homology)]
     A --> E[Aggregate Domain-Level Features]
-    E --> E1[Secondary Structure %<br/>(Helix, Sheet, Coil)]
-    E --> E2[Backbone Flexibility<br/>(Average RMSF)]
+    E --> E1[Secondary Structure % (Helix, Sheet, Coil)]
+    E --> E2[Backbone Flexibility (Average RMSF)]
     E --> E3[Core/Exterior Ratio]
     E --> E4[Solvent Accessibility]
-    E --> F[Temperature Stability Profiles<br/>Stable: RMSF₄₅₀/RMSF₃₂₀ < 1.0<br/>Moderate: 1.0–2.0<br/>Unstable: > 2.0]
+    E --> F[Temperature Stability Profiles (Stable: RMSF₄₅₀/RMSF₃₂₀ < 1.0, Moderate: 1.0–2.0, Unstable: > 2.0)]
     
     %% Core Sampling Process
     E1 & E2 & E3 & E4 & F --> G[Hierarchical Stratification by CATH]
@@ -186,29 +186,29 @@ graph TD
     H --> H1{Topology Size ≥ 10 domains?}
     
     %% Large Topology Groups
-    H1 -->|Yes| H2[K-means Clustering<br/>on Feature Vectors]
-    H2 --> H3[Select One Representative<br/>Domain per Cluster]
+    H1 -->|Yes| H2[K-means Clustering on Feature Vectors]
+    H2 --> H3[Select One Representative Domain per Cluster]
     
     %% Small Topology Groups
-    H1 -->|No| H4[Proportional Sampling<br/>Based on Feature Uniqueness]
+    H1 -->|No| H4[Proportional Sampling Based on Feature Uniqueness]
     
     %% Homology Control
     H3 & H4 --> I[Homology Control]
-    I --> I1[Build Domain Network<br/>(PDB Origin / Homologous Superfamily)]
-    I1 --> I2[Sample Connected Components<br/>(Keep Related Domains Together)]
+    I --> I1[Build Domain Network (PDB Origin / Homologous Superfamily)]
+    I1 --> I2[Sample Connected Components (Keep Related Domains Together)]
     
     %% Validation & Refinement Loop
     I2 --> J[Statistical Validation]
-    J --> J1[KS Tests for Continuous Distributions<br/>(Domain Size, RMSF Values)]
-    J --> J2[χ² Tests for Categorical Distributions<br/>(CATH Classes, Secondary Structure)]
-    J1 & J2 --> K[Calculate Representation Index (RI)<br/>(Geometric Mean of Distribution Similarity,<br/>Hierarchy Coverage, Stability Profile Coverage)]
+    J --> J1[KS Tests for Continuous Distributions (Domain Size, RMSF Values)]
+    J --> J2[χ² Tests for Categorical Distributions (CATH Classes, Secondary Structure)]
+    J1 & J2 --> K[Calculate Representation Index (RI) (Geometric Mean of Distribution Similarity, Hierarchy Coverage, Stability Profile Coverage)]
     K --> L{RI ≥ 0.9?}
     L -->|No| M[Refine Sampling]
     M --> G
     
     %% Final Output
-    L -->|Yes| N[Holdout Set<br/>(10%, 540 Domains)]
-    L -->|Yes| O[Training Set<br/>(90%, 4,858 Domains)]
+    L -->|Yes| N[Holdout Set (10%, 540 Domains)]
+    L -->|Yes| O[Training Set (90%, 4,858 Domains)]
     N & O --> P[Output Domain Lists to Text Files]
     
     %% Styling
@@ -241,4 +241,4 @@ For questions or contributions, please contact [Your Name] at [your.email@exampl
 
 ---
 
-This corrected README improves the overall structure and readability while preserving all the technical details of the mdCATH dataset stratified sampling protocol.
+This updated README should now render the mermaid diagram without issues on GitHub.
